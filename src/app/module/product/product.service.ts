@@ -3,14 +3,20 @@ import { ModelProduct } from './product.model';
 
 const createProductIntoDB = async (payload: TProduct) => {
   const result = await ModelProduct.create(payload);
+  
   return result;
 };
 const getAllProductsFromDB = async (categoryId: string) => {
   if (categoryId) {
-    return await ModelProduct.find({ category: categoryId });
+    return await ModelProduct.find({ category: categoryId }).populate(
+      'category',
+    );
   } else {
-    return await ModelProduct.find();
+    return await ModelProduct.find().populate('category');
   }
+};
+const getSingleProductFromDB = async (id: string) => {
+  return await ModelProduct.findById(id).populate('category');
 };
 const updateProductIntoDB = async (id: string, payload: Partial<TProduct>) => {
   const result = await ModelProduct.findByIdAndUpdate(id, payload, {
@@ -28,6 +34,7 @@ const deleteProductfromDB = async (id: string) => {
 export const ProductServices = {
   createProductIntoDB,
   getAllProductsFromDB,
+  getSingleProductFromDB,
   updateProductIntoDB,
   deleteProductfromDB,
 };

@@ -15,7 +15,11 @@ router
 
 router
   .route('/:id')
-  .put(ProductControllers.updateProduct)
+  .get(ProductControllers.getSingleProduct)
+  .put(
+    validateRequest(ProductValidations.UpdateProductValidationSchema),
+    ProductControllers.updateProduct,
+  )
   .delete(ProductControllers.deleteProduct);
 
 export const ProductRoutes = router;

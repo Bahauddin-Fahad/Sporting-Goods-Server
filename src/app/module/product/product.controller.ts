@@ -34,6 +34,25 @@ const getAllProducts = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const getSingleProduct = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  const result = await ProductServices.getSingleProductFromDB(id);
+  if (!result) {
+    return sendResponse(res, {
+      success: false,
+      statusCode: httpStatus.NOT_FOUND,
+      message: 'No Product Found',
+      data: null,
+    });
+  }
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Product retrieved successfully',
+    data: result,
+  });
+});
 
 const updateProduct = catchAsync(async (req, res) => {
   const { id } = req.params;
@@ -55,9 +74,9 @@ const updateProduct = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 const deleteProduct = catchAsync(async (req, res) => {
   const { id } = req.params;
-
   const result = await ProductServices.deleteProductfromDB(id);
 
   if (!result) {
@@ -80,6 +99,7 @@ const deleteProduct = catchAsync(async (req, res) => {
 export const ProductControllers = {
   createProduct,
   getAllProducts,
+  getSingleProduct,
   updateProduct,
   deleteProduct,
 };
