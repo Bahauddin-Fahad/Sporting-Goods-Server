@@ -16,10 +16,9 @@ const createProduct = catchAsync(async (req, res) => {
 });
 
 const getAllProducts = catchAsync(async (req, res) => {
-  const categoryId: any = req.query.categoryId;
+  const result = await ProductServices.getAllProductsFromDB(req.query);
 
-  const result = await ProductServices.getAllProductsFromDB(categoryId);
-  if (result.length <= 0) {
+  if (result?.result?.length <= 0) {
     return sendResponse(res, {
       success: false,
       statusCode: httpStatus.NOT_FOUND,
@@ -31,7 +30,8 @@ const getAllProducts = catchAsync(async (req, res) => {
     success: true,
     statusCode: httpStatus.OK,
     message: 'Products retrieved successfully',
-    data: result,
+    meta: result.meta,
+    data: result.result,
   });
 });
 const getSingleProduct = catchAsync(async (req, res) => {
@@ -56,8 +56,8 @@ const getSingleProduct = catchAsync(async (req, res) => {
 
 const updateProduct = catchAsync(async (req, res) => {
   const { id } = req.params;
-  const bikeData = req.body;
-  const result = await ProductServices.updateProductIntoDB(id, bikeData);
+  const productData = req.body;
+  const result = await ProductServices.updateProductIntoDB(id, productData);
 
   if (!result) {
     return sendResponse(res, {

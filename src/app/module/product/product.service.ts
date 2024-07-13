@@ -1,19 +1,22 @@
 import { TProduct } from './product.interface';
 import { ModelProduct } from './product.model';
+import QueryBuilder from '../../builder/QueryBuilder';
+import { productSearchableFields } from './product.constant';
 
 const createProductIntoDB = async (payload: TProduct) => {
   const result = await ModelProduct.create(payload);
-  
   return result;
 };
-const getAllProductsFromDB = async (categoryId: string) => {
-  if (categoryId) {
-    return await ModelProduct.find({ category: categoryId }).populate(
-      'category',
-    );
-  } else {
-    return await ModelProduct.find().populate('category');
-  }
+const getAllProductsFromDB = async (query: Record<string, unknown>) => {
+  const productQuery = new QueryBuilder(ModelProduct.find(), query)
+    .search(productSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .filterFields();
+  const meta = await productQuery.countTotal();
+  const result = await productQuery.modelQuery;
+  return { meta, result };
 };
 const getSingleProductFromDB = async (id: string) => {
   return await ModelProduct.findById(id).populate('category');

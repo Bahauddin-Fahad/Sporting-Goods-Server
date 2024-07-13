@@ -1,11 +1,9 @@
-import { Types } from 'mongoose';
-
 export interface TProduct {
   name: string;
   description: string;
   price: number;
   image: string;
-  category: Types.ObjectId;
+  category: string;
   brand: string;
   stockQuantity: number;
   rating: number;

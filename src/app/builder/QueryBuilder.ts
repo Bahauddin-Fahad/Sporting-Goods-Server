@@ -24,6 +24,7 @@ class QueryBuilder<T> {
   }
   filter() {
     const queryObj = { ...this.query };
+
     const excludeFields = [
       'searchTerm',
       'sort',
@@ -33,7 +34,21 @@ class QueryBuilder<T> {
       'fields',
     ];
     excludeFields.forEach((field) => delete queryObj[field]);
-    this.modelQuery = this.modelQuery.find(queryObj as FilterQuery<T>);
+
+    const { minPrice, maxPrice, ...restQuery } = queryObj;
+
+    const min = parseFloat(minPrice as string) || 0;
+    const max = parseFloat(maxPrice as string) || Number.MAX_VALUE;
+
+    const combinedQuery = {
+      ...restQuery,
+      price: {
+        $gte: min,
+        $lte: max,
+      },
+    };
+
+    this.modelQuery = this.modelQuery.find(combinedQuery as FilterQuery<T>);
 
     return this;
   }
@@ -46,9 +61,9 @@ class QueryBuilder<T> {
     return this;
   }
   paginate() {
-    const page = Number(this?.query?.page) || 1;
-    const limit = Number(this?.query?.limit) || 10;
-    const skip = (page - 1) * limit || 0;
+    const page = Number(this?.query?.page);
+    const limit = Number(this?.query?.limit);
+    const skip = (page - 1) * limit;
 
     this.modelQuery = this.modelQuery.skip(skip).limit(limit);
 
@@ -61,6 +76,20 @@ class QueryBuilder<T> {
     this.modelQuery = this.modelQuery.select(fields);
 
     return this;
+  }
+  async countTotal() {
+    const totalQueries = this.modelQuery.getFilter();
+    const total = await this.modelQuery.model.countDocuments(totalQueries);
+    const page = Number(this?.query?.page) || 1;
+    const limit = Number(this?.query?.limit) || 10;
+    const totalPage = Math.ceil(total / limit);
+
+    return {
+      page,
+      limit,
+      total,
+      totalPage,
+    };
   }
 }
 
