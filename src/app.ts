@@ -12,10 +12,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: [
-      'http://localhost:5173',
-      'https://sporting-goods-client.vercel.app/',
-    ],
+    origin: '*',
   }),
 );
 
